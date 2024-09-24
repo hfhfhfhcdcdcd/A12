@@ -79,10 +79,17 @@ always @(posedge sysclk or negedge rst) begin
     end
     else  begin 
         case (cnt_16)
-            5,6,7,8,9: begin
-                sto_bit<=sto_bit+1;
-            end
-            default: 
+            5,6,7,8,9:           begin sta_bit<=sta_bit+uart_rx;end //count the middle part of start bit           
+            21,22,23,24,25:      begin r_data[0]<=r_data[0] + uart_rx ;end//count the middle part of r_data[0]
+            37,38,39,40,41:      begin r_data[1]<=r_data[1] + uart_rx ;end//count the middle part of r_data[1]
+            53,54,55,56,57:      begin r_data[2]<=r_data[2] + uart_rx ;end//count the middle part of r_data[2]
+            69,70,71,72,73:      begin r_data[3]<=r_data[3] + uart_rx ;end//count the middle part of r_data[3]
+            85,86,87,88,89:      begin r_data[4]<=r_data[4] + uart_rx ;end//count the middle part of r_data[4]
+            101,102,103,104,105: begin r_data[5]<=r_data[5] + uart_rx ;end//count the middle part of r_data[5]
+            117,118,119,120,121: begin r_data[6]<=r_data[6] + uart_rx ;end//count the middle part of r_data[6]
+            133,134,135,136,137: begin r_data[7]<=r_data[7] + uart_rx ;end//count the middle part of r_data[7]
+            149,150,151,152,153: begin sto_bit<=sto_bit+uart_rx; end//count the middle part of stop bit
+            default: ;//when cnt_16 is not in the above cases, do nothing
         endcase
     end
 /*-------------------------------Data---------------------------------*/
