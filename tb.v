@@ -33,10 +33,12 @@ rst =1;
 Baud_set=0;
 uart_rx=1;
 #40;
-uart_rx1(8'hAB);
-#100;       
-uart_rx1(8'hCD);
-#100;        
+uart_rx1(8'b0000_1111);
+   
+uart_rx1(8'b1111_1111);
+
+uart_rx1(8'b0000_1111);
+#5000;        
 $stop;
 end
 

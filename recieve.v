@@ -131,9 +131,7 @@ always @(posedge sysclk or negedge rst) begin
         Data <= 8'd0;
     end
     else if(En_rx) begin//cuz the transfer is started from the r_data[0]
-        // if ((Baud_cnt_27==Baud_27-1)&&(cnt_16==159)) begin
-            
-        // end
+        if ((Baud_cnt_27==Baud_27-1)&&(cnt_16==159)) begin
             Data[0] <= r_data[0]>=4?1:0;
             Data[1] <= r_data[1]>=4?1:0;
             Data[2] <= r_data[2]>=4?1:0;
@@ -142,6 +140,8 @@ always @(posedge sysclk or negedge rst) begin
             Data[5] <= r_data[5]>=4?1:0;
             Data[6] <= r_data[6]>=4?1:0;
             Data[7] <= r_data[7]>=4?1:0;
+        end
+            
     end
     else
         Data <= Data;    
@@ -158,21 +158,14 @@ always @(posedge sysclk or negedge rst) begin
         rx_done <= 0;
 end
 /*-------------------------------cnt2---------------------------------*/
-reg [3:0] cnt2;
-always @(posedge sysclk or negedge rst) begin
-   if (!rst) begin
-        cnt2 <= 4'd0;
-    end
-    else if ((Baud_cnt_27==Baud_27-1)&&(cnt2<4'd9)) begin
-        case (cnt_16)
-            15, 31, 47, 63, 79, 95, 111, 127, 143: cnt2 <= cnt2 + 1;
-            default:cnt2 <= cnt2 ;
-        endcase
-    end
-    else if ((cnt2==4'd9)&&(Baud_cnt_27==26)&&(cnt_16==159)) begin
-        cnt2 <= 4'd0;
-    end
-    else
-        cnt2 <= cnt2;
-end
+//reg [3:0] cnt2;
+//always @(posedge sysclk or negedge rst) begin
+//   if (!rst) begin
+//        cnt2 <= 0;
+//   end
+//   else case ()
+//    : 
+//    default: 
+//   endcase
+//end
 endmodule
