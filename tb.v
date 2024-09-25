@@ -37,8 +37,6 @@ uart_rx1(8'hAB);
 #100;       
 uart_rx1(8'hCD);
 #100;        
-uart_rx1(8'hEF);
-#100;
 $stop;
 end
 

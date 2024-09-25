@@ -131,23 +131,20 @@ always @(posedge sysclk or negedge rst) begin
         Data <= 8'd0;
     end
     else if(En_rx) begin//cuz the transfer is started from the r_data[0]
-        if ((Baud_cnt_27==Baud_27-1)&&(cnt_16==159)) begin
-            Data <= sta_bit>=4  ?1:0;
-            Data <= r_data[0]>=4?1:0;
-            Data <= r_data[1]>=4?1:0;
-            Data <= r_data[2]>=4?1:0;
-            Data <= r_data[3]>=4?1:0;
-            Data <= r_data[4]>=4?1:0;
-            Data <= r_data[5]>=4?1:0;
-            Data <= r_data[6]>=4?1:0;
-            Data <= r_data[7]>=4?1:0;
-            Data <= sto_bit>=4  ?1:0;
-        end
-        else
-            Data <= 8'd0;    
+        // if ((Baud_cnt_27==Baud_27-1)&&(cnt_16==159)) begin
+            
+        // end
+            Data[0] <= r_data[0]>=4?1:0;
+            Data[1] <= r_data[1]>=4?1:0;
+            Data[2] <= r_data[2]>=4?1:0;
+            Data[3] <= r_data[3]>=4?1:0;
+            Data[4] <= r_data[4]>=4?1:0;
+            Data[5] <= r_data[5]>=4?1:0;
+            Data[6] <= r_data[6]>=4?1:0;
+            Data[7] <= r_data[7]>=4?1:0;
     end
     else
-        Data <= 8'd0;
+        Data <= Data;    
 end
 /*-------------------------------rx_done---------------------------------*/
 always @(posedge sysclk or negedge rst) begin
