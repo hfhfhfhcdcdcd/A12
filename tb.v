@@ -25,7 +25,7 @@ initial begin
 //0:
 rst     =0;
 Baud_set=0;
-uart_rx =8'd0;
+uart_rx =1;
 //1:
 #201
 rst =1; 
