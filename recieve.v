@@ -168,11 +168,11 @@ always @(posedge sysclk or negedge rst) begin
     end
     else if ((Baud_cnt_27==Baud_27-1)&&(cnt2<4'd9)) begin
         case (cnt_16)
-            15, 31, 47, 63, 79, 95, 111, 127, 143, 159: cnt2 <= cnt2 + 1;
+            15, 31, 47, 63, 79, 95, 111, 127, 143: cnt2 <= cnt2 + 1;
             default:cnt2 <= cnt2 ;
         endcase
     end
-    else if ((cnt2==4'd9)&&(Baud_cnt_27==Baud_27-1)) begin
+    else if ((cnt2==4'd9)&&(Baud_cnt_27==26)&&(cnt_16==159)) begin
         cnt2 <= 4'd0;
     end
     else
