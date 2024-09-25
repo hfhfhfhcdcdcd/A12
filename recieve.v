@@ -17,17 +17,17 @@ wire pedge;//a signal to indicate the rising edge of the uart_rx signal
 wire nedge;//a signal to indicate the falling edge of the uart_rx signal
 assign nedge=(uart_rx_buf==2'b10);
 assign pedge=(uart_rx_buf==2'b01);
-/*-------------------------------Baud_16---------------------------------*/
-reg [13:0]Baud_16;//1 bit be seperated to 16 parts
+/*-------------------------------Baud_27---------------------------------*/
+reg [13:0]Baud_27;//1 bit be seperated to 16 parts
 always @(posedge sysclk or negedge rst) begin
     if (!rst) begin
-        Baud_16<=27;//means the freqency of 1 bit's 1/16 is 27(115200)
+        Baud_27<=27;//means the freqency of 1 bit's 1/16 is 27(115200)
     end
     else case (Baud_set)
-        0:Baud_16<=27;                 //115200; 
-        1:Baud_16<=325;                  //9600; 
-        2:Baud_16<=651;                   //9600;
-        default:Baud_16<=27;             //115200; 
+        0:Baud_27<=27;                 //115200; 
+        1:Baud_27<=325;                  //9600; 
+        2:Baud_27<=651;                   //9600;
+        default:Baud_27<=27;             //115200; 
     endcase
 end
 /*----------------------------------------En_rx---------------------------To detect the start signal--*/
@@ -45,33 +45,33 @@ always @(posedge sysclk or negedge rst) begin
     else
         En_rx<=En_rx;
 end
-/*-------------------------------Baud_cnt_16(from 0 to 27 )---------------------------------*/
-reg [9:0]Baud_cnt_16;//a counter to count the number of each part of the 16 Baud_16
+/*-------------------------------Baud_cnt_27(from 0 to 27 )---------------------------------*/
+reg [9:0]Baud_cnt_27;//a counter to count the number of each part of the 16 Baud_27
 always @(posedge sysclk or negedge rst) begin
     if (!rst) begin
-        Baud_cnt_16<=0;
+        Baud_cnt_27<=0;
     end
     else if(En_rx) begin
-        if (Baud_cnt_16==Baud_16-1) begin//Baud_16 is a parameter == 27
-            Baud_cnt_16<=0;
+        if (Baud_cnt_27==Baud_27-1) begin//Baud_27 is a parameter == 27
+            Baud_cnt_27<=0;
         end
         else
-            Baud_cnt_16<=Baud_cnt_16+1;
+            Baud_cnt_27<=Baud_cnt_27+1;
     end
     else//(!En_rx)   when the En_rx signal is not pulled high, means the transmission has not yet begun
-        Baud_cnt_16<=0;
+        Baud_cnt_27<=0;
 end
 /*-------------------------------cnt_16---------------------------------*/
-reg [7:0]cnt_16;//a counter to count the number of the 16 parts of the Baud_16
+reg [7:0]cnt_16;//a counter to count the number of the 16 parts of the Baud_27
 always @(posedge sysclk or negedge rst) begin
     if (!rst) begin
         cnt_16<=0;
     end
     else if (En_rx) begin
-        if (Baud_cnt_16==(Baud_16/2)-1) begin
+        if (Baud_cnt_27==(Baud_27/2)-1) begin
             cnt_16<=cnt_16+1;
         end
-        else if ((Baud_cnt_16==Baud_16-1)&&(cnt_16==159)) begin
+        else if ((Baud_cnt_27==Baud_27-1)&&(cnt_16==159)) begin
             cnt_16<=0;
         end
         else
@@ -97,7 +97,7 @@ always @(posedge sysclk or negedge rst) begin
         r_data[7]<=0;
         sto_bit<=0;
     end
-    else if (Baud_cnt_16==(Baud_16/2)-1) begin //when each 1/16's counter count to 12
+    else if (Baud_cnt_27==(Baud_27/2)-1) begin //when each 1/16's counter count to 12
         case (cnt_16)
             5,6,7,8,9:           begin sta_bit<=sta_bit+uart_rx;end //count the middle part of start bit           
             21,22,23,24,25:      begin r_data[0]<=r_data[0] + uart_rx ;end//count the middle part of r_data[0]
@@ -112,7 +112,7 @@ always @(posedge sysclk or negedge rst) begin
             default: ;//when cnt_16 is not in the above cases, do nothing
         endcase
     end
-    else if ((Baud_cnt_16==Baud_16-1)&&(cnt_16==159)) begin
+    else if ((Baud_cnt_27==Baud_27-1)&&(cnt_16==159)) begin
         sta_bit<=0;
         r_data[0]<=0;
         r_data[1]<=0;
@@ -131,16 +131,20 @@ always @(posedge sysclk or negedge rst) begin
         Data <= 8'd0;
     end
     else if(En_rx) begin//cuz the transfer is started from the r_data[0]
-        Data <= sta_bit>=4  ?1:0;
-        Data <= r_data[0]>=4?1:0;
-        Data <= r_data[1]>=4?1:0;
-        Data <= r_data[2]>=4?1:0;
-        Data <= r_data[3]>=4?1:0;
-        Data <= r_data[4]>=4?1:0;
-        Data <= r_data[5]>=4?1:0;
-        Data <= r_data[6]>=4?1:0;
-        Data <= r_data[7]>=4?1:0;
-        Data <= sto_bit>=4  ?1:0;    
+        if ((Baud_cnt_27==Baud_27-1)&&(cnt_16==159)) begin
+            Data <= sta_bit>=4  ?1:0;
+            Data <= r_data[0]>=4?1:0;
+            Data <= r_data[1]>=4?1:0;
+            Data <= r_data[2]>=4?1:0;
+            Data <= r_data[3]>=4?1:0;
+            Data <= r_data[4]>=4?1:0;
+            Data <= r_data[5]>=4?1:0;
+            Data <= r_data[6]>=4?1:0;
+            Data <= r_data[7]>=4?1:0;
+            Data <= sto_bit>=4  ?1:0;
+        end
+        else
+            Data <= 8'd0;    
     end
     else
         Data <= 8'd0;
@@ -150,10 +154,28 @@ always @(posedge sysclk or negedge rst) begin
     if (!rst) begin
         rx_done <= 0;
     end
-    else if ((Baud_cnt_16==Baud_16-1)&&(cnt_16==159)) begin//when cnt_16 is 159, one byte has been received, and then rx_done is 1
+    else if ((Baud_cnt_27==Baud_27-1)&&(cnt_16==159)) begin//when cnt_16 is 159, one byte has been received, and then rx_done is 1
         rx_done <= 1;
     end
     else
         rx_done <= 0;
+end
+/*-------------------------------cnt2---------------------------------*/
+reg [3:0] cnt2;
+always @(posedge sysclk or negedge rst) begin
+   if (!rst) begin
+        cnt2 <= 4'd0;
+    end
+    else if ((Baud_cnt_27==Baud_27-1)&&(cnt2<4'd9)) begin
+        case (cnt_16)
+            15, 31, 47, 63, 79, 95, 111, 127, 143, 159: cnt2 <= cnt2 + 1;
+            default:cnt2 <= cnt2 ;
+        endcase
+    end
+    else if ((cnt2==4'd9)&&(Baud_cnt_27==Baud_27-1)) begin
+        cnt2 <= 4'd0;
+    end
+    else
+        cnt2 <= cnt2;
 end
 endmodule
